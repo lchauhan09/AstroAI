@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astro AI | Ancient Wisdom. Modern Clarity.</title>
+  <link rel="stylesheet" href="luxury.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="star-bg"></div>
+  <div class="constellation"></div>
+
+  <div id="app">
+    <!-- View Router Hooks -->
+    
+    <!-- Onboarding View -->
+    <div id="onboarding" class="view active">
+      <header class="mandala-container">
+        <div class="mandala-loader"></div>
+        <h1 class="serif" style="margin-top: 30px; font-size: 2.5rem;">Astro AI</h1>
+        <p class="serif" style="color: var(--cosmic-gold); font-size: 1.1rem; opacity: 0.8;">Ancient wisdom. Modern clarity.</p>
+      </header>
+
+      <main style="padding: 24px;">
+        <div class="card" id="welcome-card">
+          <h2 class="serif" style="margin-bottom: 12px; font-size: 1.5rem;">Begin Your Journey</h2>
+          <p style="color: var(--ash-grey); font-size: 0.95rem; margin-bottom: 24px;">Align your destiny with the cosmos and uncover the hidden patterns of your life.</p>
+          
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="input-field" placeholder="Enter your name" id="input-name">
+          </div>
+
+          <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <label class="form-label">Date of Birth</label>
+              <input type="date" class="input-field" id="input-dob">
+            </div>
+            <div>
+              <label class="form-label">Time of Birth</label>
+              <input type="time" class="input-field" id="input-tob">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Place of Birth</label>
+            <input type="text" class="input-field" placeholder="City, Country" id="input-place">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+              <input type="checkbox"> I don't know my birth time
+            </label>
+          </div>
+
+          <button class="btn btn-primary" onclick="showLoading()">Generate Your Cosmic Profile</button>
+        </div>
+      </main>
+    </div>
+
+    <!-- Loading View -->
+    <div id="loading" class="view">
+      <div style="height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="mandala-loader" style="width: 150px; height: 150px;"></div>
+        <h2 class="shimmer-text">Aligning your stars...</h2>
+        <p style="color: var(--cosmic-gold); opacity: 0.7; margin-top: 10px;">Reading planetary positions for [Name]</p>
+      </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboard" class="view">
+      <div class="app-bar">
+        <div class="app-logo serif"><span>Astro</span> AI</div>
+        <div style="color: var(--cosmic-gold);"><i data-lucide="bell"></i></div>
+      </div>
+      
+      <div style="padding: 0 16px 16px;">
+        <h1 class="serif" style="margin-bottom: 4px; font-size: 1.8rem;">Namaste, <span id="user-display">Lokesh</span></h1>
+        <p style="color: var(--ash-grey); font-size: 0.9rem;">Your cosmic energies for today</p>
+      </div>
+
+      <div class="card" style="background: var(--navy-indigo-grad); border: 2px solid var(--cosmic-gold);">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+          <div>
+            <span class="num-label">Current Nakshatra</span>
+            <h2 class="serif" style="color: #fff; font-size: 1.6rem;">Rohini</h2>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; text-align: center;">
+            <div data-lucide="sun" style="color: var(--saffron-glow); margin-bottom: 2px;"></div>
+            <span style="font-size: 0.7rem; display: block;">Saffron</span>
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+          <div style="flex: 1; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;">
+            <p style="font-size: 0.7rem; color: var(--ash-grey); text-transform: uppercase;">Daily Mood</p>
+            <p style="font-size: 0.9rem; font-weight: 500;">Creative & Stable</p>
+          </div>
+          <div style="flex: 1; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;">
+            <p style="font-size: 0.7rem; color: var(--ash-grey); text-transform: uppercase;">Main Focus</p>
+            <p style="font-size: 0.9rem; font-weight: 500;">Relationships</p>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" onclick="navigateTo('details')" style="background: rgba(255,255,255,0.05);">View Full Kundli</button>
+      </div>
+
+      <div class="card">
+        <h3 class="serif" style="margin-bottom: 16px; font-size: 1.2rem;">Numerology Snapshot</h3>
+        <div class="num-grid" style="margin-bottom: 20px;">
+          <div class="card num-tile">
+            <span class="num-val mono">7</span>
+            <span class="num-label">Life Path</span>
+          </div>
+          <div class="card num-tile">
+            <span class="num-val mono">9</span>
+            <span class="num-label">Lucky Num</span>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--ash-grey); line-height: 1.4;">"A day for introspective thinking. Trust your intuition over logic today."</p>
+      </div>
+
+      <div class="card" style="border-left: 4px solid var(--saffron-glow);">
+        <h3 class="serif" style="font-size: 1.1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="clock" style="width: 18px; color: var(--saffron-glow);"></i>
+          Auspicious Timings
+        </h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(212,175,55,0.1);">
+          <span style="font-size: 0.9rem;">Abhijit Muhurat</span>
+          <span class="mono" style="color: var(--emerald-green);">11:45 AM - 12:30 PM</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+          <span style="font-size: 0.9rem; opacity: 0.6;">Rahu Kalam (Avoid)</span>
+          <span class="mono" style="color: var(--lotus-pink); opacity: 0.8;">01:30 PM - 03:00 PM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed View -->
+    <div id="details" class="view">
+      <div class="app-bar">
+        <div onclick="navigateTo('dashboard')" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="chevron-left"></i>
+          <span class="serif">Cosmic Analysis</span>
+        </div>
+        <i data-lucide="share-2"></i>
+      </div>
+
+      <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab(event, 'tab-chart')">Birth Chart</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-numeral')">Numerology</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-insights')">Insights</button>
+      </div>
+
+      <div id="tab-chart" class="tab-content transition-fade">
+        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+          <div style="background: rgba(255,255,255,0.05); border-radius: 30px; padding: 4px; display: flex; border: 1px solid var(--cosmic-gold);">
+            <button class="btn btn-secondary" style="border: none; padding: 6px 16px; border-radius: 26px; background: var(--saffron-gold-grad); color: white; font-size: 0.8rem;">North Indian</button>
+            <button class="btn btn-secondary" style="border: none; padding: 6px 16px; border-radius: 26px; font-size: 0.8rem; background: transparent;">South Indian</button>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <div class="chart-lines"></div>
+          <div class="chart-square"></div>
+          <div class="planets" style="top: 10%; left: 10%;">Ju (Can)</div>
+          <div class="planets" style="top: 10%; right: 10%;">As (Tau)</div>
+          <div class="planets" style="bottom: 10%; left: 10%;">Su (Ari)</div>
+          <span class="serif" style="font-size: 1.4rem; color: var(--cosmic-gold); z-index: 2;">Ascendant: Taurus</span>
+        </div>
+
+        <div class="card">
+          <h3 class="serif" style="margin-bottom: 12px; font-size: 1.1rem;">Planetary Positions</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(212,175,55,0.2); text-align: left; color: var(--ash-grey);">
+                <th style="padding: 10px 0;">Planet</th>
+                <th style="padding: 10px 0;">Sign</th>
+                <th style="padding: 10px 0;">Nakshatra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid rgba(212,175,55,0.1);">
+                <td style="padding: 10px 0;">Sun</td>
+                <td style="padding: 10px 0;">Aries</td>
+                <td style="padding: 10px 0;">Ashwini</td>
+              </tr>
+               <tr style="border-bottom: 1px solid rgba(212,175,55,0.1);">
+                <td style="padding: 10px 0;">Moon</td>
+                <td style="padding: 10px 0;">Taurus</td>
+                <td style="padding: 10px 0;">Rohini</td>
+              </tr>
+               <tr style="border-bottom: 1px solid rgba(212,175,55,0.1);">
+                <td style="padding: 10px 0;">Jupiter</td>
+                <td style="padding: 10px 0;">Cancer</td>
+                <td style="padding: 10px 0;">Pushya</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tab-numeral" class="tab-content transition-fade" style="display: none;">
+        <div class="num-grid">
+          <div class="card">
+            <span class="num-label">Destiny Number</span>
+            <span class="num-val mono">5</span>
+            <p style="font-size: 0.7rem; color: var(--ash-grey); margin-top: 8px;">The communicator & adventurer</p>
+          </div>
+          <div class="card">
+            <span class="num-label">Soul Urge</span>
+            <span class="num-val mono">22</span>
+            <p style="font-size: 0.7rem; color: var(--lotus-pink); font-weight: bold; margin-top: 8px;">Master Builder</p>
+          </div>
+        </div>
+
+        <div class="card" style="border: 1px solid var(--lotus-pink);">
+          <h3 class="serif" style="color: var(--lotus-pink); margin-bottom: 12px; font-size: 1.1rem;">Name Correction Recommendation</h3>
+          <p style="font-size: 0.9rem; margin-bottom: 12px;">Your current name vibrations are at <span class="mono" style="color: var(--cosmic-gold);">38</span>. Adding an extra 'K' could align you with abundance.</p>
+          <div style="background: rgba(217, 108, 159, 0.1); padding: 12px; border-radius: 8px; text-align: center; border: 1px dashed var(--lotus-pink);">
+            <p style="font-weight: 600; font-size: 1rem;">LOKESSH CHAUHAN</p>
+          </div>
+        </div>
+      </div>
+
+       <div id="tab-insights" class="tab-content transition-fade" style="display: none;">
+         <div class="card">
+           <h2 class="serif" style="font-size: 1.4rem; margin-bottom: 16px;">Vimshottari Dasha</h2>
+           <div style="border-left: 2px solid var(--cosmic-gold); padding-left: 20px; position: relative;">
+              <div style="margin-bottom: 24px;">
+                <div style="position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--moonlight-white);"></div>
+                <p class="mono" style="font-size: 0.75rem; color: var(--ash-grey);">CURRENT PHASE</p>
+                <h4 class="serif" style="color: var(--saffron-glow); font-size: 1.1rem;">Jupiter Mahadasha</h4>
+                <p style="font-size: 0.85rem;">Ends May 2032. Focus on expansion, learning, and spiritual growth.</p>
+              </div>
+               <div style="margin-bottom: 24px; opacity: 0.6;">
+                <div style="position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--ash-grey);"></div>
+                <p class="mono" style="font-size: 0.75rem;">UPCOMING</p>
+                <h4 class="serif" style="font-size: 1.1rem;">Moon Antardasha</h4>
+                <p style="font-size: 0.85rem;">Starts Oct 2026. Emotional stability and focus on domestic life.</p>
+              </div>
+           </div>
+         </div>
+       </div>
+
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav" id="main-nav">
+      <div class="nav-item active" onclick="navigateTo('dashboard')">
+        <i data-lucide="home"></i>
+        <span>Home</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('details')">
+        <i data-lucide="grid"></i>
+        <span>Chart</span>
+      </div>
+      <div class="nav-item">
+        <i data-lucide="sparkles"></i>
+        <span>Remedies</span>
+      </div>
+      <div class="nav-item">
+        <i data-lucide="user"></i>
+        <span>Profile</span>
+      </div>
+    </nav>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
