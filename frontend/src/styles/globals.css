@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --color-royal-navy: #0A1128;
+  --color-moonlight-white: #F4F4F9;
+  --color-cosmic-gold: #D4AF37;
+  --color-ash-grey: #9CA3AF;
+  --color-saffron-glow: #F9A826;
+  --color-lotus-pink: #E83F6F;
+  --color-deep-maroon: #2A0800;
+  --color-emerald-green: #10B981;
+  --color-luxury-bg: #020617;
+  --color-luxury-dark: #0B0F19;
+
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Playfair Display", serif;
+
+  --animate-fadeIn: fadeIn 1.2s ease-out forwards;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-slate-950);
+    color: var(--color-slate-50);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    color: var(--color-white);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bg-saffron-gold-grad {
+  background-image: linear-gradient(to right, var(--color-saffron-glow), var(--color-cosmic-gold));
+}
