@@ -37,7 +37,7 @@ if not exist venv (
 )
 echo Installing backend dependencies...
 call venv\Scripts\activate
-pip install fastapi uvicorn sqlalchemy pydantic email-validator pyswisseph passlib[bcrypt] pyjwt
+pip install fastapi uvicorn sqlalchemy pydantic email-validator pyswisseph passlib[bcrypt] pyjwt psycopg2-binary python-dotenv alembic
 cd ..
 echo [OK] Backend ready.
 
