@@ -3,7 +3,7 @@ import { signIn } from "next-auth/react";
 
 export default function Signup() {
   const [form, setForm] = useState({
-    full_name: "",
+    name: "",
     email: "",
     password: "",
   });
@@ -14,13 +14,18 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
 
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    window.location.href = "/app/onboarding";
+      window.location.href = "/app/onboarding";
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,7 +49,7 @@ export default function Signup() {
           onClick={() => signIn("google")}
           className="w-full py-3 mb-6 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition"
         >
-          Continue with Google
+           Continue with Google
         </button>
 
         <div className="text-center text-gray-400 mb-4">or</div>
@@ -54,9 +59,10 @@ export default function Signup() {
           <input
             type="text"
             placeholder="Full Name"
-            value={form.full_name}
-            onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="w-full p-3 rounded-lg bg-black/40 border border-gray-600 text-white"
+            required
           />
 
           <input
@@ -65,6 +71,7 @@ export default function Signup() {
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="w-full p-3 rounded-lg bg-black/40 border border-gray-600 text-white"
+            required
           />
 
           <input
@@ -73,6 +80,7 @@ export default function Signup() {
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full p-3 rounded-lg bg-black/40 border border-gray-600 text-white"
+            required
           />
 
           <button

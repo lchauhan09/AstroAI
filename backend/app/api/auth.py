@@ -1,36 +1,97 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
-from sqlalchemy.orm import Session
-from app.api.schemas import UserCreate, Token 
+from passlib.context import CryptContext
+import jwt
+import os
+
 from app.db import get_db
+from app import models
+from app.schemas import UserCreateEmail, UserCreateGoogle, UserOut, Token, AuthProvider
 
 router = APIRouter()
 
-# In a real app: use secrets for these
-SECRET_KEY = "astroai_secret_key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@router.post("/register")
-async def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    # Mock registration
-    return {"message": "User registered successfully", "email": user_in.email}
+SECRET_KEY = os.getenv("JWT_SECRET", "astroai_secret_key")
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
-@router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    # Mock authentication
-    if form_data.username == "test@astroai.com" and form_data.password == "password123":
-        return {"access_token": "mock_jwt_token_for_lokesh", "token_type": "bearer"}
-    raise HTTPException(status_code=400, detail="Incorrect email or password")
 
-@router.get("/me")
-async def read_users_me():
-    # Mock current user info
-    return {
-        "id": 1,
-        "email": "test@astroai.com",
-        "full_name": "Lokesh Chauhan",
-        "is_active": True
-    }
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verify_password(plain_password, password_hash):
+    return pwd_context.verify(plain_password, password_hash)
+
+
+def hash_password(password: str):
+    return pwd_context.hash(password)
+
+
+def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
+    return db.query(models.User).filter(models.User.email == email).first()
+
+
+@router.post("/register/email", response_model=UserOut)
+def register_email(user_in: UserCreateEmail, db: Session = Depends(get_db)):
+    existing = get_user_by_email(db, user_in.email)
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    user = models.User(
+        email=user_in.email,
+        name=user_in.name,
+        auth_provider=models.AuthProvider.email,
+        password_hash=hash_password(user_in.password),
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.post("/register/google", response_model=UserOut)
+def register_google(user_in: UserCreateGoogle, db: Session = Depends(get_db)):
+    user = get_user_by_email(db, user_in.email)
+
+    if user:
+        # If user exists but was email-based, keep that; otherwise just return
+        return user
+
+    user = models.User(
+        email=user_in.email,
+        name=user_in.name,
+        avatar_url=user_in.avatar_url,
+        auth_provider=models.AuthProvider.google,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.post("/login", response_model=Token)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = get_user_by_email(db, form_data.username)
+    if not user or not user.password_hash:
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+
+    if not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+
+    access_token = create_access_token({"sub": user.id})
+    return Token(access_token=access_token)
+
+
+from app.deps import get_current_user
+
+@router.get("/me", response_model=UserOut)
+def read_me(current_user: models.User = Depends(get_current_user)):
+    return current_user

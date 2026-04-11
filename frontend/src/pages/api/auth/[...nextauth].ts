@@ -11,15 +11,14 @@ export default NextAuth({
 
   callbacks: {
     async signIn({ user }) {
-      // Forward Google user info to FastAPI backend
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            full_name: user.name,
             email: user.email,
-            password: "google-oauth", // placeholder
+            name: user.name,
+            avatar_url: user.image,
           }),
         });
       } catch (err) {
