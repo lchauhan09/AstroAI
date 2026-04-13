@@ -1,0 +1,28 @@
+name: Daily Horoscope
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          
+      - name: Run daily job
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd backend
+          python run_daily.py

@@ -57,24 +57,29 @@ def register_email(user_in: UserCreateEmail, db: Session = Depends(get_db)):
     return user
 
 
-@router.post("/register/google", response_model=UserOut)
+@router.post("/register/google")
 def register_google(user_in: UserCreateGoogle, db: Session = Depends(get_db)):
     user = get_user_by_email(db, user_in.email)
 
-    if user:
-        # If user exists but was email-based, keep that; otherwise just return
-        return user
+    if not user:
+        user = models.User(
+            email=user_in.email,
+            name=user_in.name,
+            avatar_url=user_in.avatar_url,
+            auth_provider=models.AuthProvider.google,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
-    user = models.User(
-        email=user_in.email,
-        name=user_in.name,
-        avatar_url=user_in.avatar_url,
-        auth_provider=models.AuthProvider.google,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+    # Create JWT
+    access_token = create_access_token({"sub": user.id})
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": user,
+    }
 
 
 @router.post("/login", response_model=Token)

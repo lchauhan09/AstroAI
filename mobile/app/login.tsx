@@ -6,7 +6,7 @@ import { useAuth } from "../src/auth/useAuth";
 import { colors } from "../src/theme/colors";
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -34,6 +34,18 @@ export default function Login() {
       />
 
       <Button title="Login" onPress={() => login(email, password)} />
+
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 32 }}>
+        <View style={{ flex: 1, height: 1, backgroundColor: '#2A2F3E' }} />
+        <Text style={{ color: colors.muted, marginHorizontal: 16 }}>or</Text>
+        <View style={{ flex: 1, height: 1, backgroundColor: '#2A2F3E' }} />
+      </View>
+
+      <Button 
+        title="Continue with Google" 
+        onPress={() => loginWithGoogle()} 
+        type="outline"
+      />
     </View>
   );
 }
