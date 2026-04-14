@@ -7,10 +7,12 @@ export const googleConfig = {
     android: "26035044129-n8pg5eclhv82tkg0e3kojs1gmf0494ca.apps.googleusercontent.com",
     default: "26035044129-n8pg5eclhv82tkg0e3kojs1gmf0494ca.apps.googleusercontent.com",
   }),
-  redirectUri: AuthSession.makeRedirectUri({
-    scheme: "astroai",
-    path: "redirect",
-    useProxy: true,
+  redirectUri: Platform.select({
+    android: "com.astroai.app:/oauth2redirect/google",
+    default: AuthSession.makeRedirectUri({
+      scheme: "astroai",
+      path: "redirect",
+    }),
   }),
   scopes: ["profile", "email"],
 };
