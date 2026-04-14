@@ -10,6 +10,7 @@ export const googleConfig = {
   redirectUri: AuthSession.makeRedirectUri({
     scheme: "astroai",
     path: "redirect",
+    useProxy: true,
   }),
   scopes: ["profile", "email"],
 };

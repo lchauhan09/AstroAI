@@ -29,13 +29,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font"
     ],
     "extra": {
       "router": {},
       "eas": {
         "projectId": "4dc339f0-0e07-4cb0-90ba-05f471db8ba9"
       }
-    }
+    },
+    "scheme": "astroai"
   }
 }
