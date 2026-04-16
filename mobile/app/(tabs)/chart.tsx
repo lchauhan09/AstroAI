@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../src/auth/useAuth';
-import { api } from '../src/api/client';
+import { useAuth } from '../../src/auth/useAuth';
+import { useNatalChart } from '../../src/api/queries';
+import CosmicLoader from '../../src/components/CosmicLoader';
 
 interface PlanetPosition {
   degree: number;
@@ -28,32 +29,13 @@ interface NatalData {
 
 export default function ChartScreen() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<NatalData | null>(null);
   const router = useRouter();
+  
+  const { data: queryData, isLoading } = useNatalChart();
+  const data = queryData as NatalData | undefined;
 
-  useEffect(() => {
-    fetchNatalData();
-  }, []);
-
-  const fetchNatalData = async () => {
-    try {
-      const json = await api("/astro/my-natal");
-      setData(json);
-    } catch (error) {
-      console.error("Error fetching natal data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FFD700" />
-        <Text style={styles.loadingText}>Calculating Cosmic Positions...</Text>
-      </View>
-    );
+  if (isLoading) {
+    return <CosmicLoader message="Calculating Cosmic Positions..." />;
   }
 
   return (

@@ -13,5 +13,5 @@ export default function Index() {
   }
 
   // Otherwise, go to dashboard
-  return <Redirect href="/dashboard" />;
+  return <Redirect href="/(tabs)/dashboard" />;
 }

@@ -21,6 +21,18 @@ export async function api(path: string, options: any = {}) {
     });
     
     console.log(`[API] Status: ${res.status} for ${path}`);
+    
+    if (res.status === 401) {
+      await SecureStore.deleteItemAsync("token");
+      // Could emit an event here to notify the router to kick the user out,
+      // but deleting the token prevents infinite loops on retry.
+      throw new Error("Unauthorized");
+    }
+
+    if (!res.ok) {
+        throw new Error(`API Error: ${res.status}`);
+    }
+
     return res.json();
   } catch (error) {
     console.error(`[API] Connection Error for ${url}:`, error);
