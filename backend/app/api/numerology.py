@@ -32,8 +32,15 @@ def get_daily_numerology(current_user = Depends(get_current_user)):
     dob = prefs.get('birth_details', {}).get('date')
     name = current_user.name
     
-    if not dob or not name:
-        raise HTTPException(status_code=400, detail="Birth date and name must be configured in preferences.")
+    missing = []
+    if not dob: missing.append("birth_details.date")
+    if not name: missing.append("name")
+    
+    if missing:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Missing required user data: {', '.join(missing)}. Please complete onboarding."
+        )
         
     base_report = num_engine.run_full_report(name, dob)
     
