@@ -4,7 +4,8 @@ import os
 import traceback
 
 from app.db import Base, engine, check_db_connectivity
-from app.api import auth, user, astro, astro_natal, astro_transits, numerology, agent
+from app.api import auth, user, astro, astro_natal, astro_transits, numerology, agent, onboarding, dashboard, notifications
+from app.services.scheduler import start_scheduler
 
 # Validate DB Connection on start
 print("!!!!!!!!!!!!!!!!!!!! INITIALIZING ASTROAI BACKEND !!!!!!!!!!!!!!!!!!!!")
@@ -13,6 +14,7 @@ if not check_db_connectivity():
     print("Please verify the credentials and connectivity in .env.")
 else:
     print("SUCCESS: Established stable connection to PostgreSQL.")
+    start_scheduler()
 
 app = FastAPI(title="AstroAI API")
 
@@ -39,11 +41,14 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(user.router, prefix="/user", tags=["user"])
+app.include_router(onboarding.router, tags=["user"])
+app.include_router(dashboard.router, tags=["dashboard"])
 app.include_router(astro.router, prefix="/astro", tags=["astro"])
 app.include_router(astro_natal.router, prefix="/astro", tags=["astro"])
 app.include_router(astro_transits.router, prefix="/astro", tags=["astro"])
 app.include_router(numerology.router, prefix="/numerology", tags=["numerology"])
 app.include_router(agent.router, prefix="/agent", tags=["agent"])
+app.include_router(notifications.router, tags=["notifications"])
 
 @app.get("/")
 def read_root():

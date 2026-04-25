@@ -30,3 +30,12 @@ export function useDailyNumerology() {
     staleTime: 1000 * 60 * 60, // 1 hour
   });
 }
+export function useDashboard() {
+  return useQuery({
+    queryKey: ['dashboard'],
+    queryFn: async () => {
+      return await api('/dashboard/');
+    },
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
+}

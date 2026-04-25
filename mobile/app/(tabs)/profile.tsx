@@ -16,7 +16,7 @@ export default function Profile() {
           <Text style={styles.value}>{user?.name || "Unknown Traveler"}</Text>
           
           <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{user?.email}</Text>
+          <Text style={styles.value}>{user?.email || "No email linked"}</Text>
         </View>
 
         <TouchableOpacity style={styles.logoutBtn} onPress={logout}>

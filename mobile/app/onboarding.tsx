@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Input from "../src/components/Input";
@@ -43,25 +43,30 @@ export default function Onboarding() {
     const dateStr = birthDate.toISOString().split("T")[0]; // YYYY-MM-DD
     const timeStr = birthTime.toTimeString().split(" ")[0].slice(0, 5); // HH:MM
 
-    await api("/user/onboarding", {
-      method: "POST",
-      body: JSON.stringify({ step: "completed" }),
-    });
+    try {
+      await api("/user/onboarding", {
+        method: "POST",
+        body: JSON.stringify({ step: "completed" }),
+      });
 
-    await api("/user/preferences", {
-      method: "POST",
-      body: JSON.stringify({
-        birth_details: {
-          date: dateStr,
-          time: timeStr,
-          location: locationStr,
-        },
-        goals,
-        notifications,
-      }),
-    });
+      await api("/user/preferences", {
+        method: "POST",
+        body: JSON.stringify({
+          birth_details: {
+            date: dateStr,
+            time: timeStr,
+            location: locationStr,
+          },
+          goals,
+          notifications,
+        }),
+      });
 
-    router.replace("/dashboard");
+      router.replace("/dashboard");
+    } catch (e: any) {
+      console.error("[ONBOARDING] Error:", e);
+      Alert.alert("Process Failed", e.message || "Could not save your preferences. Please try again.");
+    }
   }
 
   return (

@@ -31,9 +31,20 @@ export async function api(path: string, options: any = {}) {
     }
 
     if (!res.ok) {
-        const errorBody = await res.text();
-        console.error(`[API] Error body for ${path}:`, errorBody);
-        throw new Error(`API Error: ${res.status}`);
+        let errorMessage = `API Error: ${res.status}`;
+        const errorText = await res.text().catch(() => "");
+        
+        try {
+            const errorData = JSON.parse(errorText);
+            if (errorData && errorData.detail) {
+                errorMessage = errorData.detail;
+            }
+        } catch (e) {
+            console.error(`[API] Raw error body for ${path}:`, errorText);
+        }
+        
+        console.error(`[API] Error for ${path}:`, errorMessage);
+        throw new Error(errorMessage);
     }
 
     return res.json();

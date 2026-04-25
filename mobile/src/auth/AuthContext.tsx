@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { registerForPush } from "../services/notifications";
+import { Alert } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import * as AuthSession from "expo-auth-session";
 import { User } from "@astroai/shared"; // Assuming this is available or we'll bypass type for now
@@ -18,8 +20,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      registerForPush();
+    }
+  }, [user]);
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
@@ -115,8 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             console.error("[AUTH] Backend registration failed (no token):", backendData);
           }
-        } catch (e) {
+        } catch (e: any) {
           console.error("[AUTH] Error in Google Auth lifecycle", e);
+          Alert.alert("Authentication Error", e.message || "Failed to complete Google sign-in.");
         }
       })();
     }

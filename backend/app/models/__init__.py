@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Enum, JSON
+from sqlalchemy import Column, String, Boolean, DateTime, Enum, JSON, Float, Numeric
 from sqlalchemy.sql import func
 import uuid
 import enum
@@ -27,7 +27,16 @@ class User(Base):
     password_hash = Column(String, nullable=True)
 
     onboarding_step = Column(String, default="start")
+    
+    # Onboarding Details
+    birth_date = Column(String, nullable=True)
+    birth_time = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    
     preferences = Column(JSON, default={})
+    push_token = Column(String, nullable=True)
 
     is_active = Column(Boolean, default=True)
 

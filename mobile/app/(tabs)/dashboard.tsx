@@ -1,158 +1,144 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useDailyAstro } from "../../src/api/queries";
-import { colors } from "../../src/theme/colors";
-import CosmicLoader from "../../src/components/CosmicLoader";
+import { useEffect, useState } from "react";
+import { ScrollView, View, Text, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import Animated, { FadeInUp } from "react-native-reanimated";
+import { getDashboardData, getWeeklyForecast } from "../../src/services/dashboard";
+import { DashboardCard } from "../../src/components/DashboardCard";
+import { DashboardSkeleton } from "../../src/components/DashboardSkeleton";
+import { useTheme } from "../../src/theme/useTheme";
+import { CosmicBackground } from "../../src/components/CosmicBackground";
+import { ZodiacIcons, PlanetIcons } from "../../src/components/icons/CosmicIcons";
+import { InsightText } from "../../src/components/InsightText";
 
-interface DailyAstro {
-  horoscope: string;
-  moon_phase: string;
-  lucky_number: number;
-  lucky_color: string;
-  transits: { planet: string; status: string }[];
-}
+export default function DashboardScreen() {
+  const [data, setData] = useState<any>(null);
+  const [weekly, setWeekly] = useState<any>(null);
+  const theme = useTheme();
 
-export default function Dashboard() {
-  const { data: queryData, isLoading, isError } = useDailyAstro();
-  const data = queryData as DailyAstro | undefined;
+  useEffect(() => {
+    (async () => {
+      try {
+        const [d, w] = await Promise.all([
+          getDashboardData(),
+          getWeeklyForecast()
+        ]);
+        setData(d);
+        setWeekly(w);
+      } catch (error) {
+        console.error("Dashboard error:", error);
+      }
+    })();
+  }, []);
 
-  if (isLoading) {
-    return <CosmicLoader message="Loading your stars..." />;
-  }
+  if (!data) return <DashboardSkeleton />;
 
-  if (isError || !data) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={{ color: "red" }}>Error loading cosmic insights.</Text>
-      </View>
-    );
-  }
+  const { numerology, astrology, ai_insight } = data;
+
+  // Dynamic Icon Mapping
+  const sunSign = astrology.planets.Sun?.sign?.toLowerCase();
+  const ZodiacIcon = ZodiacIcons[sunSign as keyof typeof ZodiacIcons] || ZodiacIcons.aries;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Your Daily Insights</Text>
+    <View style={styles.container}>
+      <CosmicBackground />
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <Animated.Text
+          entering={FadeInUp.duration(600)}
+          style={[styles.title, { color: theme.colors.textPrimary }]}
+        >
+          Your Cosmic Dashboard
+        </Animated.Text>
+        
+        <DashboardCard
+          title="Numerology"
+          subtitle="Your daily numbers"
+          gradient={theme.gradients.gold}
+          Icon={PlanetIcons.sun}
+          data={[
+            { label: "Life Path", value: numerology.core.life_path_number },
+            { label: "Destiny", value: numerology.core.destiny_number },
+            { label: "Daily Insight", value: numerology.daily.message },
+          ]}
+        />
 
-        {/* Horoscope */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Daily Horoscope</Text>
-          <Text style={styles.text}>{data.horoscope}</Text>
-        </View>
+        <DashboardCard
+          title="Astrology"
+          subtitle="Your celestial blueprint"
+          gradient={theme.gradients.purple}
+          Icon={ZodiacIcon}
+          data={[
+            { label: "Sun", value: astrology.planets.Sun?.sign || "N/A" },
+            { label: "Moon", value: astrology.planets.Moon?.sign || "N/A" },
+            { label: "Ascendant", value: astrology.ascendant.sign },
+          ]}
+        />
 
-        {/* Moon Phase & Planetary Details Row */}
-        <View style={styles.row}>
-          <View style={styles.halfCard}>
-            <Text style={styles.minTitle}>Moon Phase</Text>
-            <Text style={styles.text}>{data.moon_phase}</Text>
-          </View>
-          
-          <View style={styles.halfCard}>
-            <Text style={styles.minTitle}>Lucky Color</Text>
-            <Text style={styles.text}>{data.lucky_color}</Text>
-          </View>
-        </View>
+        <DashboardCard
+          title="AI Insight"
+          subtitle="Personalized interpretation"
+          gradient={theme.gradients.blue}
+          Icon={PlanetIcons.moon}
+          data={[]}
+        >
+          <InsightText text={ai_insight.message} />
+        </DashboardCard>
 
-        {/* Lucky Number */}
-        <View style={[styles.card, { alignItems: 'center' }]}>
-          <Text style={styles.minTitle}>Lucky Number</Text>
-          <Text style={styles.bigNumber}>{data.lucky_number}</Text>
-        </View>
-
-        {/* Transits */}
-        <View style={[styles.card, { marginBottom: 40 }]}>
-          <Text style={styles.cardTitle}>Planetary Transits</Text>
-
-          {data.transits?.map((t: { planet: string; status: string }, i: number) => (
-            <View key={i} style={styles.transitRow}>
-              <Text style={styles.planetName}>{t.planet}</Text>
-              <Text style={styles.planetStatus}>{t.status}</Text>
+        {weekly && (
+          <DashboardCard
+            title="Your Week Ahead"
+            subtitle={weekly.theme}
+            gradient={theme.gradients.gold}
+            Icon={PlanetIcons.sun}
+            data={[]}
+          >
+            <InsightText text={weekly.summary} />
+            <View style={{ marginTop: 12 }}>
+              {weekly.days?.map((d: any, idx: number) => (
+                <View key={idx} style={styles.dayRow}>
+                  <Text style={styles.dayName}>{d.day}</Text>
+                  <Text style={styles.dayFocus}>
+                    {d.focus} — <Text style={styles.dayNote}>{d.note}</Text>
+                  </Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </DashboardCard>
+        )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: colors.text,
-    marginTop: 12,
-  },
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: 24,
-    paddingTop: 40,
-  },
+  container: { flex: 1 },
+  scroll: { padding: 20, paddingTop: 60, paddingBottom: 80 },
   title: {
-    color: colors.gold,
     fontSize: 32,
+    fontWeight: "700",
     marginBottom: 20,
-    fontWeight: 'bold',
   },
-  card: {
-    marginBottom: 24,
-    backgroundColor: '#1A1F2E',
-    padding: 16,
-    borderRadius: 15,
+  dayRow: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.1)",
   },
-  cardTitle: {
-    color: colors.gold,
-    fontSize: 20,
-    marginBottom: 8,
-    fontWeight: '600',
+  dayName: {
+    color: "#F5D27A",
+    fontWeight: "700",
+    fontSize: 14,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 2,
   },
-  text: {
-    color: colors.text,
-    lineHeight: 24,
+  dayFocus: {
+    color: "#EDEAF5",
+    fontSize: 15,
+    lineHeight: 20,
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
+  dayNote: {
+    color: "#C8C0D8",
+    fontSize: 14,
+    fontStyle: "italic",
   },
-  halfCard: {
-    flex: 0.48,
-    backgroundColor: '#1A1F2E',
-    padding: 16,
-    borderRadius: 15,
-  },
-  minTitle: {
-    color: colors.gold,
-    fontSize: 16,
-    marginBottom: 4,
-    fontWeight: '600',
-  },
-  bigNumber: {
-    color: colors.text,
-    fontSize: 36,
-    fontWeight: 'bold',
-  },
-  transitRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#2A2F3E',
-    paddingBottom: 8,
-  },
-  planetName: {
-    color: colors.text,
-    fontWeight: '500',
-  },
-  planetStatus: {
-    color: colors.muted,
-  }
 });

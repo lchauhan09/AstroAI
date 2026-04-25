@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 import Input from "../src/components/Input";
 import Button from "../src/components/Button";
 import { useAuth } from "../src/auth/useAuth";
@@ -9,13 +9,30 @@ import { Redirect, useRouter } from "expo-router";
 export default function Login() {
   const { user, login, loginWithGoogle } = useAuth();
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   
   if (user) {
     return <Redirect href="/" />;
   }
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const handleLogin = async () => {
+    try {
+      await login(email, password);
+    } catch (e: any) {
+      console.error("[LOGIN] Error:", e);
+      Alert.alert("Login Failed", e.message || "Something went wrong.");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+    } catch (e: any) {
+      console.error("[GOOGLE LOGIN] Error:", e);
+      Alert.alert("Google Login Failed", e.message || "Something went wrong.");
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, padding: 24, justifyContent: 'center' }}>
@@ -40,7 +57,7 @@ export default function Login() {
         onChangeText={setPassword} 
       />
 
-      <Button title="Login" onPress={() => login(email, password)} />
+      <Button title="Login" onPress={handleLogin} />
 
       <TouchableOpacity 
         style={{ marginTop: 24, alignItems: 'center' }}
@@ -59,7 +76,7 @@ export default function Login() {
 
       <Button 
         title="Continue with Google" 
-        onPress={() => loginWithGoogle()} 
+        onPress={handleGoogleLogin} 
         type="outline"
       />
     </View>
