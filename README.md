@@ -1,64 +1,70 @@
-# AstroAI - Full-Stack Implementation
+# AstroAI: Ancient Wisdom. Modern Clarity.
 
-Ancient wisdom meets modern clarity with a FastAPI backend and Next.js frontend.
+A premium full-stack platform for Vedic Astrology and Numerology, powered by FastAPI, Next.js, and Expo.
 
 ## Project Structure
 
-- `backend/`: FastAPI application, SQL models, and core Vedic/Numerology engines.
-- `frontend/`: Next.js (TypeScript) application with TailwindCSS and custom luxury design system.
+- `backend/`: FastAPI application with high-precision Swiss Ephemeris engine.
+- `mobile/`: Expo-based React Native app for cross-platform mobile experiences.
+- `frontend/`: Next.js (TypeScript) web application with a custom luxury design system.
+- `shared/`: (Planned) Shared types and utilities.
 
-## Getting Started
+## 🚀 Quick Start (Windows)
+
+The easiest way to get everything running is to use the automated scripts:
+
+1.  **First Time Setup**: Run `setup_astroai.bat`. This will create virtual environments and install all dependencies for Backend, Frontend, and Mobile.
+2.  **Launch All**: Run `launch_all.bat`. This will spin up the FastAPI server, Next.js web app, and Expo Metro bundler in separate windows.
+
+---
+
+## 🛠 Manual Setup
 
 ### 1. Backend Setup (FastAPI)
-
-Prerequisites: Python 3.10+, PostgreSQL (optional, defaults to SQLite)
-
+- **Environment**: Python 3.10+
+- **Database**: PostgreSQL (optional, defaults to SQLite)
 ```bash
 cd backend
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate # Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install fastapi uvicorn sqlalchemy pydantic email-validator pyswisseph passlib[bcrypt] pyjwt
-
-# Run the server
-python app/main.py
+venv\Scripts\activate  # On Windows
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
 ```
 
-**Note**: `pyswisseph` requires C-compilation on some systems. Pre-built binaries are available for most OS versions.
+### 2. Mobile Setup (Expo)
+- **Environment**: Node.js 18+
+```bash
+cd mobile
+npm install
+npx expo start
+```
+*Note: Use the `--lan` or `--tunnel` flag if testing on a physical device.*
 
-### 2. Frontend Setup (Next.js)
-
-Prerequisites: Node.js 18+
-
+### 3. Web Frontend (Next.js)
 ```bash
 cd frontend
-# Install dependencies
 npm install
-
-# Run the development server
 npm run dev
 ```
 
-The frontend will start at [http://localhost:3000](http://localhost:3000).
+---
 
-## Design System
+## ✨ Key Features
 
-- **Primary Colors**: Royal Navy (#0A0F2C), Cosmic Gold (#D4AF37), Saffron Glow (#FF9933)
-- **Typography**: Playfair Display (Headings), Inter (Body), JetBrains Mono (Data)
-- **Visuals**: Mandala animations, gold-bordered cards (16px radius), and smooth ease-in-out transitions.
-
-## Key Features
-
-- **Sidereal Engine**: High-precision Vedic chart generation using Swiss Ephemeris.
+- **High-Precision Sidereal Engine**: Real-time Vedic chart generation using Swiss Ephemeris (`pyswisseph`).
 - **Numerology Signature**: Chaldean and Pythagorean vibrations with name correction.
-- **AI Interpretations**: Personalized wisdom reports linking astrology and numerology via LLMs.
-- **Daily Insights**: Real-time Panchang, auspicious timings (Muhurats), and Rahu Kalam trackers on the dashboard.
+- **AI Interpretations**: Personalized wisdom reports linking astrology and numerology.
+- **Cosmic Dashboard**: Daily Panchang, Moon phases, and planetary transits.
+- **Luxury Design System**: Royal Navy (#0A0F2C) and Cosmic Gold (#D4AF37) aesthetic with smooth Mandala animations.
 
-## Production Roadmap
+## 🎨 Design Philosophy
 
-1.  **High Availability**: Deploy backend to AWS Lambda or ECS using Docker.
-2.  **State Management**: Use React Query for advanced caching of cosmic data.
-3.  **Security**: Replace mock JWT keys with environment variables and secure HttpOnly cookies.
-4.  **Ephemeris Path**: Point `pyswisseph` to the official Swiss Ephemeris data files for dates far in the past/future.
+- **Visuals**: Gold-bordered glassmorphism, 16px corner radii, and Playfair Display typography.
+- **Responsiveness**: Fully fluid layouts from mobile screens to desktop browsers.
+
+## 🗺 Production Roadmap
+
+1.  **AI Agent Core**: Deep integration with `@lokesh/agent-core` for autonomous cosmic analysis.
+2.  **Infrastructure**: Dockerization for AWS/GCP deployment.
+3.  **Real-time Alerts**: Push notifications for critical planetary transits.
+4.  **Premium Ephemeris**: Integration of high-fidelity Swiss Ephemeris data files.
