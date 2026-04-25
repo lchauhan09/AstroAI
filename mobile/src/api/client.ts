@@ -1,9 +1,10 @@
 import * as SecureStore from "expo-secure-store";
 
-const API_URL = "http://192.168.2.21:8000";
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.2.21:8000";
 
 export async function api(path: string, options: any = {}) {
   const token = await SecureStore.getItemAsync("token");
+  console.log(`[API] Token present: ${!!token} ${token ? `(${token.substring(0, 10)}...)` : ""}`);
 
   const headers = {
     "Content-Type": "application/json",
@@ -30,6 +31,8 @@ export async function api(path: string, options: any = {}) {
     }
 
     if (!res.ok) {
+        const errorBody = await res.text();
+        console.error(`[API] Error body for ${path}:`, errorBody);
         throw new Error(`API Error: ${res.status}`);
     }
 

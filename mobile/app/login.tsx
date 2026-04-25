@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import Input from "../src/components/Input";
 import Button from "../src/components/Button";
 import { useAuth } from "../src/auth/useAuth";
 import { colors } from "../src/theme/colors";
+import { Redirect, useRouter } from "expo-router";
 
 export default function Login() {
-  const { login, loginWithGoogle } = useAuth();
+  const { user, login, loginWithGoogle } = useAuth();
+  const router = useRouter();
+  
+  if (user) {
+    return <Redirect href="/" />;
+  }
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -35,6 +42,15 @@ export default function Login() {
 
       <Button title="Login" onPress={() => login(email, password)} />
 
+      <TouchableOpacity 
+        style={{ marginTop: 24, alignItems: 'center' }}
+        onPress={() => router.push("/register")}
+      >
+        <Text style={{ color: colors.muted }}>
+          Don't have an account? <Text style={{ color: colors.gold, fontWeight: 'bold' }}>Sign Up</Text>
+        </Text>
+      </TouchableOpacity>
+
       <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 32 }}>
         <View style={{ flex: 1, height: 1, backgroundColor: '#2A2F3E' }} />
         <Text style={{ color: colors.muted, marginHorizontal: 16 }}>or</Text>
@@ -49,3 +65,4 @@ export default function Login() {
     </View>
   );
 }
+

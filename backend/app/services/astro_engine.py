@@ -45,9 +45,9 @@ def calculate_planet_positions(dt: datetime, lat: float = 0, lon: float = 0, sid
     for name, planet_id in PLANETS.items():
         if name == "Rahu":
             # Rahu is usually calculated tropically then converted to sidereal if needed
-            res = swe.calc_ut(jd, planet_id, sweep_flag := (swe.FLG_SWIEPH | (swe.FLG_SIDEREAL if sidereal else 0)))[0]
+            res = swe.calc_ut(jd, planet_id, swe.FLG_SWIEPH | (swe.FLG_SIDEREAL if sidereal else 0))[0][0]
         else:
-            res = swe.calc_ut(jd, planet_id, flag)[0]
+            res = swe.calc_ut(jd, planet_id, flag)[0][0]
 
         pos = res
 
@@ -65,8 +65,6 @@ def calculate_planet_positions(dt: datetime, lat: float = 0, lon: float = 0, sid
         "sign": get_sign(ketu_pos),
         "sign_degree": ketu_pos % 30,
     }
-
-    return positions
 
     return positions
 

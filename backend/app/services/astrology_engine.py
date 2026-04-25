@@ -24,19 +24,21 @@ class AstrologyEngine:
         swe.set_sid_mode(swe.SIDM_LAHIRI)
         
         planets = {}
-        planet_list = [swe.SUN, swe.MOON, swe.MARS, swe.MERCURY, swe.JUPITER, swe.VENUS, swe.SATURN, swe.RAHU, swe.KETU]
-        planet_names = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]
+        # Planets to calculate
+        # RAHU is TRUE_NODE, KETU is TRUE_NODE + 180 degrees
+        planet_list = [swe.SUN, swe.MOON, swe.MARS, swe.MERCURY, swe.JUPITER, swe.VENUS, swe.SATURN, swe.TRUE_NODE]
+        planet_names = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu"]
 
         for i, p_id in enumerate(planet_list):
-            # Calculate tropical position first
-            if p_id in [swe.RAHU, swe.KETU]:
-                res = swe.calc_ut(jd, p_id, swe.FLG_SWIEPH)[0]
+            # Calculate position
+            is_node = p_id == swe.TRUE_NODE
+            if is_node:
+                res = swe.calc_ut(jd, p_id, swe.FLG_SWIEPH)[0][0]
             else:
-                res = swe.calc_ut(jd, p_id, swe.FLG_SWIEPH | swe.FLG_SIDEREAL)[0]
+                res = swe.calc_ut(jd, p_id, swe.FLG_SWIEPH | swe.FLG_SIDEREAL)[0][0]
             
-            # Use Lahiri ayanamsa explicitly if needed
             ayanamsa = swe.get_ayanamsa_ut(jd)
-            sidereal_pos = (res - ayanamsa) % 360 if p_id not in [swe.RAHU, swe.KETU] else res % 360
+            sidereal_pos = (res - ayanamsa) % 360 if not is_node else res % 360
             
             sign_index = int(sidereal_pos / 30)
             sign_name = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"][sign_index]
@@ -47,8 +49,19 @@ class AstrologyEngine:
                 "longitude": sidereal_pos,
                 "sign": sign_name,
                 "degree": degree,
-                "house": 0 # Determined after house calculation
+                "house": 0
             }
+
+        # Add Ketu (180 degrees from Rahu)
+        rahu_pos = planets["Rahu"]["longitude"]
+        ketu_pos = (rahu_pos + 180) % 360
+        ketu_sign_idx = int(ketu_pos / 30)
+        planets["Ketu"] = {
+            "longitude": ketu_pos,
+            "sign": ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"][ketu_sign_idx],
+            "degree": ketu_pos % 30,
+            "house": 0
+        }
 
         # Calculate Houses (Ascendant/Lagna)
         # 0 = Placidus/standard, 'W' = Whole Sign (common in Vedic)

@@ -17,7 +17,7 @@ export default function AuthRedirect() {
     // has caught the response before we navigate away.
     const timer = setTimeout(() => {
       router.replace("/");
-    }, 1500);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);

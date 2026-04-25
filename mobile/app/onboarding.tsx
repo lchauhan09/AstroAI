@@ -84,7 +84,7 @@ export default function Onboarding() {
               value={birthDate}
               mode="date"
               display="default"
-              onChange={(event, selectedDate) => {
+              onValueChange={(event, selectedDate) => {
                 setShowDatePicker(false);
                 if (selectedDate) setBirthDate(selectedDate);
               }}
@@ -104,7 +104,7 @@ export default function Onboarding() {
               value={birthTime}
               mode="time"
               display="default"
-              onChange={(event, selectedDate) => {
+              onValueChange={(event, selectedDate) => {
                 setShowTimePicker(false);
                 if (selectedDate) setBirthTime(selectedDate);
               }}

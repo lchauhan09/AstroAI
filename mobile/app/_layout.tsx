@@ -1,12 +1,15 @@
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from "../src/auth/AuthContext";
 
 const queryClient = new QueryClient();
 
 export default function Layout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }} />
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }

@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, SafeAreaView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDailyNumerology } from "../../src/api/queries";
 import { colors } from "../../src/theme/colors";
 import CosmicLoader from "../../src/components/CosmicLoader";

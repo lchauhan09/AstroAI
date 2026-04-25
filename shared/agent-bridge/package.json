@@ -1,0 +1,13 @@
+{
+  "name": "agent-bridge",
+  "version": "1.0.0",
+  "description": "HTTP bridge for @lokesh/agent-core",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@lokesh/agent-core": "file:../../../agent-core",
+    "express": "^4.18.2"
+  }
+}
