@@ -12,7 +12,7 @@ import os
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 num_engine = NumerologyEngine()
 
-AGENT_URL = os.getenv("AGENT_URL", "http://localhost:8001/run")
+AGENT_URL = os.getenv("AGENT_URL", "http://localhost:5001/run")
 
 @router.get("/")
 async def get_dashboard(

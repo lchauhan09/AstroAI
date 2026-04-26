@@ -1,15 +1,21 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Input from "../src/components/Input";
 import Button from "../src/components/Button";
+import { LocationPicker } from "../src/components/LocationPicker";
 import { api } from "../src/api/client";
 import { colors } from "../src/theme/colors";
 
+import { useAuth } from "../src/auth/useAuth";
+
 export default function Onboarding() {
+  const { loadUser } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [name, setName] = useState("");
 
   // Step 1 — Birth Details
   const [birthDate, setBirthDate] = useState(new Date(2000, 0, 1));
@@ -17,11 +23,18 @@ export default function Onboarding() {
   const [birthTime, setBirthTime] = useState(new Date(2000, 0, 1, 12, 0));
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const [locationMode, setLocationMode] = useState<"city" | "coords">("city");
-  const [birthCity, setBirthCity] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
+  const [birthLocation, setBirthLocation] = useState<{name: string, lat: number, lon: number} | null>(null);
+  const params = useLocalSearchParams();
 
+  useEffect(() => {
+    if (params.pickedLat && params.pickedLon) {
+      setBirthLocation({
+        name: params.pickedName as string || "Selected from Map",
+        lat: parseFloat(params.pickedLat as string),
+        lon: parseFloat(params.pickedLon as string),
+      });
+    }
+  }, [params.pickedLat, params.pickedLon]);
   // Step 2 — Goals
   const [goals, setGoals] = useState<string[]>([]);
   // Step 3 — Preferences
@@ -34,35 +47,30 @@ export default function Onboarding() {
   }
 
   async function finishOnboarding() {
-    // Determine location string based on mode
-    let locationStr = locationMode === "city" 
-      ? birthCity 
-      : `${latitude}, ${longitude}`;
-
-    // Format date and time
-    const dateStr = birthDate.toISOString().split("T")[0]; // YYYY-MM-DD
-    const timeStr = birthTime.toTimeString().split(" ")[0].slice(0, 5); // HH:MM
+    const dateStr = birthDate.toISOString().split("T")[0];
+    const timeStr = birthTime.toTimeString().split(" ")[0].slice(0, 5);
+    const locationStr = birthLocation ? birthLocation.name : "Unknown";
 
     try {
       await api("/user/onboarding", {
         method: "POST",
-        body: JSON.stringify({ step: "completed" }),
-      });
-
-      await api("/user/preferences", {
-        method: "POST",
-        body: JSON.stringify({
-          birth_details: {
-            date: dateStr,
-            time: timeStr,
-            location: locationStr,
-          },
-          goals,
-          notifications,
+        body: JSON.stringify({ 
+          step: "completed",
+          name,
+          birth_date: dateStr,
+          birth_time: timeStr,
+          location: locationStr,
+          latitude: birthLocation ? birthLocation.lat : null,
+          longitude: birthLocation ? birthLocation.lon : null,
+          preferences: {
+            goals,
+            notifications
+          }
         }),
       });
 
-      router.replace("/dashboard");
+      await loadUser();
+      router.replace("/(tabs)/dashboard");
     } catch (e: any) {
       console.error("[ONBOARDING] Error:", e);
       Alert.alert("Process Failed", e.message || "Could not save your preferences. Please try again.");
@@ -76,7 +84,12 @@ export default function Onboarding() {
       {/* STEP 1 */}
       {step === 1 && (
         <View style={styles.stepContainer}>
-          <Text style={styles.subtitle}>Enter your birth details securely.</Text>
+          <Text style={styles.subtitle}>Enter your details securely.</Text>
+
+          <View style={{ marginBottom: 20 }}>
+            <Text style={styles.label}>Full Name</Text>
+            <Input placeholder="e.g. John Doe" value={name} onChangeText={setName} />
+          </View>
 
           <View style={styles.pickerRow}>
             <Text style={styles.label}>Date of Birth</Text>
@@ -89,7 +102,7 @@ export default function Onboarding() {
               value={birthDate}
               mode="date"
               display="default"
-              onValueChange={(event, selectedDate) => {
+              onChange={(_event: any, selectedDate?: Date) => {
                 setShowDatePicker(false);
                 if (selectedDate) setBirthDate(selectedDate);
               }}
@@ -109,7 +122,7 @@ export default function Onboarding() {
               value={birthTime}
               mode="time"
               display="default"
-              onValueChange={(event, selectedDate) => {
+              onChange={(_event: any, selectedDate?: Date) => {
                 setShowTimePicker(false);
                 if (selectedDate) setBirthTime(selectedDate);
               }}
@@ -117,36 +130,43 @@ export default function Onboarding() {
           )}
 
           <Text style={[styles.label, { marginTop: 20 }]}>Place of Birth</Text>
-          <View style={styles.toggleRow}>
-            <TouchableOpacity 
-              style={[styles.toggleBtn, locationMode === "city" && styles.toggleBtnActive]}
-              onPress={() => setLocationMode("city")}
-            >
-              <Text style={styles.toggleTxt}>City / State</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.toggleBtn, locationMode === "coords" && styles.toggleBtnActive]}
-              onPress={() => setLocationMode("coords")}
-            >
-              <Text style={styles.toggleTxt}>Coordinates</Text>
+          <LocationPicker
+            onSelect={(loc) => {
+              setBirthLocation({
+                name: loc.title,
+                lat: parseFloat(loc.lat),
+                lon: parseFloat(loc.lon),
+              });
+            }}
+          />
+          
+          <View style={{ marginTop: 10, alignItems: "center" }}>
+            <TouchableOpacity onPress={() => router.push("/location-map")}>
+              <Text style={{ color: colors.gold, fontWeight: "600" }}>Or Pick on Map 🗺️</Text>
             </TouchableOpacity>
           </View>
-
-          {locationMode === "city" ? (
-            <Input placeholder="e.g. New York, USA" value={birthCity} onChangeText={setBirthCity} />
-          ) : (
-            <View style={styles.row}>
-              <View style={{ flex: 1, marginRight: 10 }}>
-                <Input placeholder="Latitude" value={latitude} onChangeText={setLatitude} keyboardType="numeric" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Input placeholder="Longitude" value={longitude} onChangeText={setLongitude} keyboardType="numeric" />
-              </View>
-            </View>
+          
+          {birthLocation && (
+            <Text style={{ color: "white", marginTop: 10, fontSize: 12 }}>
+              Selected: {birthLocation.name}
+            </Text>
           )}
 
           <View style={styles.navRow}>
-            <Button title="Continue" onPress={() => setStep(2)} />
+            <Button 
+              title="Continue" 
+              onPress={() => {
+                if (!name.trim()) {
+                  Alert.alert("Missing Information", "Please enter your full name.");
+                  return;
+                }
+                if (!birthLocation) {
+                  Alert.alert("Missing Information", "Please search and select your place of birth.");
+                  return;
+                }
+                setStep(2);
+              }} 
+            />
           </View>
         </View>
       )}
@@ -168,8 +188,13 @@ export default function Onboarding() {
             </TouchableOpacity>
           ))}
 
-          <View style={styles.navRow}>
-            <Button title="Continue to Preferences" onPress={() => setStep(3)} />
+          <View style={styles.navRowSplit}>
+            <View style={{ flex: 1, marginRight: 12 }}>
+              <Button title="Back" type="outline" onPress={() => setStep(1)} />
+            </View>
+            <View style={{ flex: 2 }}>
+              <Button title="Next" onPress={() => setStep(3)} />
+            </View>
           </View>
         </View>
       )}
@@ -188,8 +213,13 @@ export default function Onboarding() {
             </Text>
           </TouchableOpacity>
 
-          <View style={styles.navRow}>
-            <Button title="Enter AstroAI" onPress={finishOnboarding} />
+          <View style={styles.navRowSplit}>
+            <View style={{ flex: 1, marginRight: 12 }}>
+              <Button title="Back" type="outline" onPress={() => setStep(2)} />
+            </View>
+            <View style={{ flex: 2 }}>
+              <Button title="Enter AstroAI" onPress={finishOnboarding} />
+            </View>
           </View>
         </View>
       )}
@@ -291,5 +321,20 @@ const styles = StyleSheet.create({
   },
   navRow: {
     marginTop: 32,
+  },
+  navRowSplit: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 32,
+  },
+  backBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    marginRight: 16,
+  },
+  backBtnTxt: {
+    color: colors.muted,
+    fontSize: 16,
+    fontWeight: '600',
   }
 });

@@ -4,7 +4,7 @@ import os
 import traceback
 
 from app.db import Base, engine, check_db_connectivity
-from app.api import auth, user, astro, astro_natal, astro_transits, numerology, agent, onboarding, dashboard, notifications
+from app.api import auth, user, astro, astro_natal, astro_transits, numerology, agent, onboarding, dashboard, notifications, location
 from app.services.scheduler import start_scheduler
 
 # Validate DB Connection on start
@@ -49,7 +49,7 @@ app.include_router(astro_transits.router, prefix="/astro", tags=["astro"])
 app.include_router(numerology.router, prefix="/numerology", tags=["numerology"])
 app.include_router(agent.router, prefix="/agent", tags=["agent"])
 app.include_router(notifications.router, tags=["notifications"])
-
+app.include_router(location.router, prefix="/api/location", tags=["location"])
 @app.get("/")
 def read_root():
     return {"message": "Welcome to AstroAI API"}

@@ -1,8 +1,16 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import Constants from "expo-constants";
 import { api } from "../api/client";
 
 export async function registerForPush() {
+  // expo-notifications push tokens are not supported in Expo Go (SDK 53+).
+  // Skip silently when running in Expo Go.
+  if (Constants.appOwnership === "expo") {
+    console.log("[Push] Skipping push registration in Expo Go.");
+    return null;
+  }
+
   try {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -21,7 +29,10 @@ export async function registerForPush() {
     console.log("Expo Push Token:", token);
 
     // Send token to backend
-    await api.post("/notifications/register", { token });
+    await api("/notifications/register", { 
+      method: "POST",
+      body: JSON.stringify({ token })
+    });
 
     if (Platform.OS === "android") {
       Notifications.setNotificationChannelAsync("default", {

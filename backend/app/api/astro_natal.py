@@ -36,15 +36,12 @@ def natal_chart(data: NatalRequest):
 
 @router.get("/my-natal")
 def my_natal_chart(current_user: User = Depends(get_current_user)):
-    # Extract birth details from user preferences or profile
-    # For now, we assume user has these in preferences as per setup
-    birth_details = current_user.preferences.get("birth_details")
-    if not birth_details:
+    if not current_user.birth_date:
         raise HTTPException(status_code=400, detail="Birth details not found in user profile")
     
-    dt_str = f"{birth_details['date']}T{birth_details['time']}"
-    lat = birth_details.get("lat", 0.0)
-    lon = birth_details.get("lon", 0.0)
+    dt_str = f"{current_user.birth_date}T{current_user.birth_time or '12:00:00'}"
+    lat = current_user.latitude or 0.0
+    lon = current_user.longitude or 0.0
     
     dt = datetime.fromisoformat(dt_str)
     planets = calculate_planet_positions(dt, lat, lon)

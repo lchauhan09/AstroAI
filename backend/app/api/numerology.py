@@ -28,12 +28,11 @@ def get_daily_numerology(current_user = Depends(get_current_user)):
     """
     Returns daily numerology insights based on personal numbers and current date.
     """
-    prefs = current_user.preferences or {}
-    dob = prefs.get('birth_details', {}).get('date')
+    dob = current_user.birth_date
     name = current_user.name
     
     missing = []
-    if not dob: missing.append("birth_details.date")
+    if not dob: missing.append("birth_date")
     if not name: missing.append("name")
     
     if missing:

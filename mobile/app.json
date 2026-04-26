@@ -10,7 +10,11 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD"
     },
     "ios": {
       "supportsTablet": true
@@ -22,7 +26,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.astroai.app"
+      "package": "com.astroai.app",
+      "googleServicesFile": "./android/app/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,7 +35,25 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker",
+      "@maplibre/maplibre-react-native",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow AstroAI to access your location for accurate timezone and birthplace suggestions."
+        }
+      ],
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#D4AF37",
+          "androidMode": "default",
+          "androidCollapsedTitle": "AstroAI"
+        }
+      ]
     ],
     "extra": {
       "router": {},
@@ -38,6 +61,6 @@
         "projectId": "4dc339f0-0e07-4cb0-90ba-05f471db8ba9"
       }
     },
-    "scheme": ["astroai", "com.astroai.app"]
+    "scheme": "astroai"
   }
 }
